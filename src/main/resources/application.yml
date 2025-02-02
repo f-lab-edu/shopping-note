@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: shopping_note
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui
+    operationsSorter: method
