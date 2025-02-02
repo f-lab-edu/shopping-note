@@ -1,6 +1,10 @@
 spring:
   application:
     name: shopping_note
+  r2dbc:
+    url: r2dbc:mysql://localhost:3306/shopping_note
+    username: api
+    password: ghEH*id!&s18
 
 springdoc:
   api-docs:

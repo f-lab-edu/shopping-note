@@ -1,0 +1,62 @@
+# docker-compose -p shopping_note up -d
+services:
+
+  # docker-compose -p shopping_note up --build -d mysql-db
+  mysql-db:
+    container_name: mysql-shopping-note
+    image: mysql:8.0   # 안정적인 MySQL 8.0 버전 사용
+    platform: linux/amd64
+    environment:
+      MYSQL_ROOT_PASSWORD: zjxA8!9d*a
+      MYSQL_DATABASE: shopping_note
+      MYSQL_USER: api
+      MYSQL_PASSWORD: ghEH*id!&s18
+#      MYSQL_EXTRA_FLAGS: "--thread_handling=pool-of-threads --thread_pool_size=4"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - shopping_note
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '1g'
+        reservations:
+          cpus: '1'
+          memory: '1g'
+
+  # docker-compose -p shopping_note up --build -d redis
+  redis:
+    container_name: redis-shopping-note
+    image: redis:7.0    # 최신 안정 버전의 Redis 사용
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: [ "redis-server", "--appendonly", "yes" ]  # 데이터 영속성 활성화
+    networks:
+      - shopping_note
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '2g'
+        reservations:
+          cpus: '0.5'
+          memory: '512m'
+
+networks:
+  shopping_note:
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local

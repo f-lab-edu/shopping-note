@@ -20,7 +20,12 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation") // Bean Validation 추가
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc") // R2DBC 기본 설정
+    implementation("io.asyncer:r2dbc-mysql:1.0.2") // MySQL R2DBC 드라이버
+
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor") // Coroutine + WebFlux 사용 시 필요
 
