@@ -1,7 +1,7 @@
-package com.chaw.shopping_note.app.domain.user.usecase
+package com.chaw.shopping_note.app.user.usecase
 
-import com.chaw.shopping_note.app.domain.user.entity.User
-import com.chaw.shopping_note.app.infrastructure.mysql.user.UserRepository
+import com.chaw.shopping_note.app.user.entity.User
+import com.chaw.shopping_note.app.user.infrastructure.repository.UserRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
