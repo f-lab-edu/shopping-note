@@ -1,4 +1,4 @@
-package com.chaw.shopping_note.app.domain.user.entity
+package com.chaw.shopping_note.app.user.entity
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
