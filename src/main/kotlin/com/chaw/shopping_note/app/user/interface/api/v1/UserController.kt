@@ -1,4 +1,4 @@
-package com.chaw.shopping_note.app.user.interfaces.api.v1
+package com.chaw.shopping_note.app.user.`interface`.api.v1
 
 import com.chaw.shopping_note.app.user.entity.User
 import com.chaw.shopping_note.app.user.usecase.CreateUserUseCase
