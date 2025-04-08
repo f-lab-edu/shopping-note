@@ -28,8 +28,9 @@ data class Receipt(
     @CreatedDate
     val createdAt: LocalDateTime? = null
 ) {
-    fun setTotal(totalPrice: Double, totalCount: Int) {
+    fun setTotal(receiptItems: List<ReceiptItem>) {
+        val totalPrice = receiptItems.sumOf { it.totalPrice }
         this.totalPrice = totalPrice
-        this.totalCount = totalCount
+        this.totalCount = receiptItems.size
     }
 }

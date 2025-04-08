@@ -1,7 +1,7 @@
 package com.chaw.shopping_note.app.receipt.domain
 
-import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.CreatedDate
+import org.springframework.data.annotation.Id
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDateTime
@@ -29,4 +29,40 @@ data class ReceiptItem(
 
     @LastModifiedDate
     var updatedAt: LocalDateTime? = null
-)
+) {
+    companion object {
+        fun create(
+            receiptId: Long,
+            productName: String,
+            productCode: String,
+            unitPrice: Double,
+            quantity: Int,
+            category: Category
+        ): ReceiptItem {
+            return ReceiptItem(
+                receiptId = receiptId,
+                productName = productName,
+                productCode = productCode,
+                unitPrice = unitPrice,
+                quantity = quantity,
+                totalPrice = unitPrice * quantity,
+                category = category
+            )
+        }
+    }
+
+    fun update(
+        productName: String,
+        productCode: String,
+        unitPrice: Double,
+        quantity: Int,
+        category: Category,
+    ) {
+        this.productName = productName
+        this.productCode = productCode
+        this.unitPrice = unitPrice
+        this.quantity = quantity
+        this.totalPrice = unitPrice * quantity
+        this.category = category
+    }
+}
