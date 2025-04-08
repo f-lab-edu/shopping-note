@@ -7,13 +7,18 @@ import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 import org.springframework.security.access.AccessDeniedException
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.time.LocalDateTime
+import kotlin.test.assertFailsWith
 
 class UpdateReceiptItemUseCaseTest {
 
@@ -27,12 +32,12 @@ class UpdateReceiptItemUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { receiptRepository.save(any()) } answers { firstArg() }
-        every { receiptItemRepository.save(any()) } answers { firstArg() }
+        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg()) }
+        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg()) }
     }
 
     @Test
-    fun `영수증 항목을 수정할 수 있다`() {
+    fun `영수증 항목을 수정할 수 있다`() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L
@@ -61,9 +66,9 @@ class UpdateReceiptItemUseCaseTest {
             updatedAt = LocalDateTime.now()
         )
 
-        every { receiptItemRepository.findById(receiptItemId) } returns Optional.of(receiptItem)
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
-        every { receiptItemRepository.findAllByReceiptId(receiptId) } returns listOf(receiptItem)
+        coEvery { receiptItemRepository.findById(receiptItemId) } returns Mono.just(receiptItem)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
+        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.fromIterable(listOf(receiptItem))
 
         val input = UpdateReceiptItemRequestDto(
             userId = userId,
@@ -86,12 +91,12 @@ class UpdateReceiptItemUseCaseTest {
         assertEquals(6000.0 * 3, result.totalPrice)
         assertEquals(Category.HEALTH, result.category)
 
-        verify(exactly = 1) { receiptItemRepository.save(receiptItem) }
-        verify(exactly = 1) { receiptRepository.save(receipt) }
+        coVerify(exactly = 1) { receiptItemRepository.save(receiptItem) }
+        coVerify(exactly = 1) { receiptRepository.save(receipt) }
     }
 
     @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() {
+    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L
@@ -121,8 +126,8 @@ class UpdateReceiptItemUseCaseTest {
             updatedAt = LocalDateTime.now()
         )
 
-        every { receiptItemRepository.findById(receiptItemId) } returns Optional.of(receiptItem)
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
+        coEvery { receiptItemRepository.findById(receiptItemId) } returns Mono.just(receiptItem)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
 
         val input = UpdateReceiptItemRequestDto(
             userId = wrongUserId,
@@ -135,17 +140,17 @@ class UpdateReceiptItemUseCaseTest {
         )
 
         // when & then
-        assertThrows(AccessDeniedException::class.java) {
+        assertFailsWith<AccessDeniedException> {
             updateReceiptItemUseCase.execute(input)
         }
     }
 
     @Test
-    fun `receiptItemId가 잘못되면 IllegalArgumentException이 발생한다`() {
+    fun `receiptItemId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
         // given
         val wrongReceiptItemId = 999L
 
-        every { receiptItemRepository.findById(wrongReceiptItemId) } returns Optional.empty()
+        coEvery { receiptItemRepository.findById(wrongReceiptItemId) } returns Mono.empty()
 
         val input = UpdateReceiptItemRequestDto(
             userId = 123L,
@@ -158,7 +163,7 @@ class UpdateReceiptItemUseCaseTest {
         )
 
         // when & then
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             updateReceiptItemUseCase.execute(input)
         }
     }

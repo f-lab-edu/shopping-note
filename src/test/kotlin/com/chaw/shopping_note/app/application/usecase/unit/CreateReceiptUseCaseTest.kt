@@ -2,14 +2,17 @@ package com.chaw.shopping_note.app.application.usecase.unit
 
 import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptRequestDto
 import com.chaw.shopping_note.app.receipt.application.usecase.CreateReceiptUseCase
+import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
+import reactor.core.publisher.Mono
 
 class CreateReceiptUseCaseTest {
 
@@ -21,11 +24,11 @@ class CreateReceiptUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { receiptRepository.save(any()) } answers { firstArg() }
+        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg<Receipt>()) }
     }
 
     @Test
-    fun `영수증을 생성할 수 있다`() {
+    fun `영수증을 생성할 수 있다`() = runTest {
         // given
         val input = CreateReceiptRequestDto(
             userId = 123L,
@@ -43,6 +46,6 @@ class CreateReceiptUseCaseTest {
         assertEquals(0, result.totalCount)
         assertEquals(input.purchaseAt, result.purchaseAt)
 
-        verify(exactly = 1) { receiptRepository.save(any()) }
+        coVerify(exactly = 1) { receiptRepository.save(any()) }
     }
 }

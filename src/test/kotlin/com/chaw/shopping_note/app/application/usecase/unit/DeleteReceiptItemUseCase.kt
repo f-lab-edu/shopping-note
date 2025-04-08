@@ -7,13 +7,18 @@ import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 import org.springframework.security.access.AccessDeniedException
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.time.LocalDateTime
+import kotlin.test.assertFailsWith
 
 class DeleteReceiptItemUseCaseTest {
 
@@ -27,12 +32,12 @@ class DeleteReceiptItemUseCaseTest {
 
     @BeforeEach
     fun setUp() {
-        every { receiptRepository.save(any()) } answers { firstArg() }
-        every { receiptItemRepository.delete(any()) } just Runs
+        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg()) }
+        coEvery { receiptItemRepository.delete(any()) } answers { Mono.empty() }
     }
 
     @Test
-    fun `영수증 항목을 삭제할 수 있다`() {
+    fun `영수증 항목을 삭제할 수 있다`() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L
@@ -61,9 +66,9 @@ class DeleteReceiptItemUseCaseTest {
             updatedAt = LocalDateTime.now()
         )
 
-        every { receiptItemRepository.findById(receiptItemId) } returns Optional.of(receiptItem)
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
-        every { receiptItemRepository.findAllByReceiptId(receiptId) } returns emptyList()
+        coEvery { receiptItemRepository.findById(receiptItemId) } returns Mono.just(receiptItem)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
+        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.empty()
 
         val input = DeleteReceiptItemRequestDto(
             userId = userId,
@@ -76,12 +81,12 @@ class DeleteReceiptItemUseCaseTest {
         // then
         assertTrue(result)
 
-        verify(exactly = 1) { receiptItemRepository.delete(receiptItem) }
-        verify(exactly = 1) { receiptRepository.save(any()) }
+        coVerify(exactly = 1) { receiptItemRepository.delete(receiptItem) }
+        coVerify(exactly = 1) { receiptRepository.save(any()) }
     }
 
     @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() {
+    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L
@@ -111,8 +116,8 @@ class DeleteReceiptItemUseCaseTest {
             updatedAt = LocalDateTime.now()
         )
 
-        every { receiptItemRepository.findById(receiptItemId) } returns Optional.of(receiptItem)
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
+        coEvery { receiptItemRepository.findById(receiptItemId) } returns Mono.just(receiptItem)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
 
         val input = DeleteReceiptItemRequestDto(
             userId = wrongUserId,
@@ -120,17 +125,17 @@ class DeleteReceiptItemUseCaseTest {
         )
 
         // when & then
-        assertThrows(AccessDeniedException::class.java) {
+        assertFailsWith<AccessDeniedException> {
             deleteReceiptItemUseCase.execute(input)
         }
     }
 
     @Test
-    fun `receiptItemId가 잘못되면 IllegalArgumentException이 발생한다`() {
+    fun `receiptItemId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
         // given
         val wrongReceiptItemId = 999L
 
-        every { receiptItemRepository.findById(wrongReceiptItemId) } returns Optional.empty()
+        coEvery { receiptItemRepository.findById(wrongReceiptItemId) } returns Mono.empty()
 
         val input = DeleteReceiptItemRequestDto(
             userId = 123L,
@@ -138,7 +143,7 @@ class DeleteReceiptItemUseCaseTest {
         )
 
         // when & then
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             deleteReceiptItemUseCase.execute(input)
         }
     }

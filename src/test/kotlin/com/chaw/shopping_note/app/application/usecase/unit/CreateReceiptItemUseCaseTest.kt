@@ -4,16 +4,20 @@ import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptItemReque
 import com.chaw.shopping_note.app.receipt.application.usecase.CreateReceiptItemUseCase
 import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.Receipt
+import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 import org.springframework.security.access.AccessDeniedException
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.time.LocalDateTime
+import kotlin.test.assertFailsWith
 
 class CreateReceiptItemUseCaseTest {
 
@@ -26,7 +30,7 @@ class CreateReceiptItemUseCaseTest {
     )
 
     @Test
-    fun `영수증 항목을 생성할 수 있다`() {
+    fun `영수증 항목을 생성할 수 있다`() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L
@@ -51,10 +55,10 @@ class CreateReceiptItemUseCaseTest {
             category = Category.FOOD
         )
 
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
-        every { receiptRepository.save(any()) } answers { firstArg() }
-        every { receiptItemRepository.findAllByReceiptId(receiptId) } returns emptyList()
-        every { receiptItemRepository.save(any()) } answers { firstArg() }
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
+        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg<ReceiptItem>()) }
+        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.empty()
+        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg()) }
 
         // when
         val result = createReceiptItemUseCase.execute(input)
@@ -63,12 +67,12 @@ class CreateReceiptItemUseCaseTest {
         assertEquals(input.productName, result.productName)
         assertEquals(input.unitPrice * input.quantity, result.totalPrice)
 
-        verify(exactly = 1) { receiptItemRepository.save(any()) }
-        verify(exactly = 1) { receiptRepository.save(any()) }
+        coVerify(exactly = 1) { receiptItemRepository.save(any()) }
+        coVerify(exactly = 1) { receiptRepository.save(any()) }
     }
 
     @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() {
+    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L
@@ -94,16 +98,16 @@ class CreateReceiptItemUseCaseTest {
             category = Category.FOOD
         )
 
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
 
         // when & then
-        assertThrows(AccessDeniedException::class.java) {
+        assertFailsWith<AccessDeniedException> {
             createReceiptItemUseCase.execute(input)
         }
     }
 
     @Test
-    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() {
+    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
         // given
         val wrongReceiptId = 999L
 
@@ -117,10 +121,10 @@ class CreateReceiptItemUseCaseTest {
             category = Category.FOOD
         )
 
-        every { receiptRepository.findById(wrongReceiptId) } returns Optional.empty()
+        coEvery { receiptRepository.findById(wrongReceiptId) } returns Mono.empty()
 
         // when & then
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             createReceiptItemUseCase.execute(input)
         }
     }

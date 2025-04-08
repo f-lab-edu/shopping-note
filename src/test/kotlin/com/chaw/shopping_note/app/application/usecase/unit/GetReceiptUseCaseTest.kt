@@ -10,13 +10,16 @@ import com.chaw.shopping_note.app.receipt.domain.Store
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.StoreRepository
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.mockk
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
-import java.util.*
 import org.springframework.security.access.AccessDeniedException
+import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
+import java.time.LocalDateTime
+import kotlin.test.assertFailsWith
 
 class GetReceiptUseCaseTest {
 
@@ -31,7 +34,7 @@ class GetReceiptUseCaseTest {
     )
 
     @Test
-    fun `영수증과 영수증 항목을 조회할 수 있다`() {
+    fun `영수증과 영수증 항목을 조회할 수 있다`() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L
@@ -78,9 +81,9 @@ class GetReceiptUseCaseTest {
             )
         )
 
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
-        every { storeRepository.findById(receipt.storeId) } returns Optional.of(store)
-        every { receiptItemRepository.findAllByReceiptId(receiptId) } returns receiptItems
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
+        coEvery { storeRepository.findById(receipt.storeId) } returns Mono.just(store)
+        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.fromIterable(receiptItems)
 
         val input = GetReceiptRequestDto(
             userId = userId,
@@ -98,7 +101,7 @@ class GetReceiptUseCaseTest {
     }
 
     @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() {
+    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L
@@ -114,7 +117,7 @@ class GetReceiptUseCaseTest {
             createdAt = LocalDateTime.now()
         )
 
-        every { receiptRepository.findById(receiptId) } returns Optional.of(receipt)
+        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
 
         val input = GetReceiptRequestDto(
             userId = wrongUserId,
@@ -122,17 +125,17 @@ class GetReceiptUseCaseTest {
         )
 
         // when & then
-        assertThrows(AccessDeniedException::class.java) {
+        assertFailsWith<AccessDeniedException> {
             getReceiptUseCase.execute(input)
         }
     }
 
     @Test
-    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() {
+    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
         // given
         val wrongReceiptId = 999L
 
-        every { receiptRepository.findById(wrongReceiptId) } returns Optional.empty()
+        coEvery { receiptRepository.findById(wrongReceiptId) } returns Mono.empty()
 
         val input = GetReceiptRequestDto(
             userId = 123L,
@@ -140,7 +143,7 @@ class GetReceiptUseCaseTest {
         )
 
         // when & then
-        assertThrows(IllegalArgumentException::class.java) {
+        assertFailsWith<IllegalArgumentException> {
             getReceiptUseCase.execute(input)
         }
     }

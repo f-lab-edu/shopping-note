@@ -7,13 +7,14 @@ import com.chaw.shopping_note.common.converter.StringToEnumConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
-import org.springframework.data.jdbc.core.convert.JdbcCustomConversions
+import org.springframework.data.convert.CustomConversions
+import org.springframework.data.r2dbc.convert.R2dbcCustomConversions
 
 @Configuration
 class ConverterConfig {
 
     @Bean
-    fun jdbcCustomConversions(): JdbcCustomConversions {
+    fun r2dbcCustomConversions(): R2dbcCustomConversions {
         val converters = mutableListOf<Converter<*, *>>()
 
         // Category <-> String
@@ -24,6 +25,6 @@ class ConverterConfig {
         converters.add(EnumToStringConverter(StoreType::class))
         converters.add(StringToEnumConverter(StoreType::class))
 
-        return JdbcCustomConversions(converters)
+        return R2dbcCustomConversions(CustomConversions.StoreConversions.NONE, converters)
     }
 }
