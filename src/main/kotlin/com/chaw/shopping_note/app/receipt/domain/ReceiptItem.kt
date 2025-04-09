@@ -16,11 +16,11 @@ data class ReceiptItem(
 
     var productCode: String, // 상품코드
 
-    var unitPrice: Double,     // 단가
+    var unitPrice: Int,     // 단가
 
     var quantity: Int,      // 수량
 
-    var totalPrice: Double,    // 합계 (단가 * 수량)
+    var totalPrice: Int,    // 합계 (단가 * 수량)
 
     var category: Category, // 카테고리 (enum으로 관리)
 
@@ -35,7 +35,7 @@ data class ReceiptItem(
             receiptId: Long,
             productName: String,
             productCode: String,
-            unitPrice: Double,
+            unitPrice: Int,
             quantity: Int,
             category: Category
         ): ReceiptItem {
@@ -54,7 +54,7 @@ data class ReceiptItem(
     fun update(
         productName: String,
         productCode: String,
-        unitPrice: Double,
+        unitPrice: Int,
         quantity: Int,
         category: Category,
     ) {
