@@ -1,5 +1,6 @@
 plugins {
-    kotlin("jvm") version "1.9.25"
+    kotlin("jvm") version "1.9.22"
+    id("org.jetbrains.kotlin.kapt") version "1.9.22"
     kotlin("plugin.spring") version "1.9.25"
     id("org.springframework.boot") version "3.4.2"
     id("io.spring.dependency-management") version "1.1.7"
@@ -30,7 +31,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor") // Coroutine + WebFlux 사용 시 필요
 
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0") // SpringDoc OpenAPI 추가
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.5.0") // SpringDoc OpenAPI 추가
+
+    implementation("org.mapstruct:mapstruct:1.5.5.Final") // MapStruct 라이브러리
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final") // 컴파일러
+    kapt("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

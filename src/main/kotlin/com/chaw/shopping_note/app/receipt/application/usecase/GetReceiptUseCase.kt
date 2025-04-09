@@ -2,6 +2,7 @@ package com.chaw.shopping_note.app.receipt.application.usecase
 
 import com.chaw.shopping_note.app.receipt.application.dto.GetReceiptRequestDto
 import com.chaw.shopping_note.app.receipt.application.dto.GetReceiptResponseDto
+import com.chaw.shopping_note.app.receipt.application.mapper.ReceiptMapper
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.StoreRepository
@@ -14,7 +15,8 @@ import org.springframework.security.access.AccessDeniedException
 class GetReceiptUseCase (
     private val storeRepository: StoreRepository,
     private val receiptRepository: ReceiptRepository,
-    private val receiptItemRepository: ReceiptItemRepository
+    private val receiptItemRepository: ReceiptItemRepository,
+    private val receiptMapper: ReceiptMapper
 ){
 
     suspend fun execute(input: GetReceiptRequestDto): GetReceiptResponseDto {
@@ -29,6 +31,6 @@ class GetReceiptUseCase (
             .collectList()
             .awaitSingle()
 
-        return GetReceiptResponseDto.from(receipt, store, receiptItems)
+        return receiptMapper.toGetReceiptResponseDto(receipt, store, receiptItems)
     }
 }

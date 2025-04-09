@@ -28,39 +28,4 @@ data class GetReceiptResponseDto(
     val totalPrice: Int,
     val totalCount: Int,
     val createdAt: LocalDateTime,
-) {
-    companion object {
-        fun from(
-            receipt: Receipt,
-            store: Store?,
-            receiptItems: List<ReceiptItem>
-        ): GetReceiptResponseDto {
-            return GetReceiptResponseDto(
-                id = receipt.id!!,
-                store = store?.let {
-                    StoreResponseDto(
-                        id = store.id!!,
-                        name = store.name,
-                        type = store.type
-                    )
-                },
-                items = receiptItems.map {
-                    ReceiptItemResponseDto(
-                        id = it.id!!,
-                        productName = it.productName,
-                        productCode = it.productCode,
-                        unitPrice = it.unitPrice,
-                        quantity = it.quantity,
-                        totalPrice = it.totalPrice,
-                        category = it.category,
-                        updatedAt = it.updatedAt!!
-                    )
-                },
-                purchaseAt = receipt.purchaseAt!!,
-                totalPrice = receipt.totalPrice,
-                totalCount = receipt.totalCount,
-                createdAt = receipt.createdAt!!
-            )
-        }
-    }
-}
+)
