@@ -40,7 +40,7 @@ class CreateReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 0.0,
+            totalPrice = 0,
             totalCount = 0,
             createdAt = LocalDateTime.now()
         )
@@ -50,7 +50,7 @@ class CreateReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
             category = Category.FOOD
         )
@@ -83,7 +83,7 @@ class CreateReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 0.0,
+            totalPrice = 0,
             totalCount = 0,
             createdAt = LocalDateTime.now()
         )
@@ -93,7 +93,7 @@ class CreateReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
             category = Category.FOOD
         )
@@ -116,7 +116,7 @@ class CreateReceiptItemUseCaseTest {
             receiptId = wrongReceiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
             category = Category.FOOD
         )
