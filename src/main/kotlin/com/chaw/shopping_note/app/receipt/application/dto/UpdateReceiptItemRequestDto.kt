@@ -7,7 +7,7 @@ data class UpdateReceiptItemRequestDto(
     val receiptItemId: Long,
     val productName: String,
     val productCode: String,
-    val unitPrice: Double,
+    val unitPrice: Int,
     val quantity: Int,
     val category: Category
 )

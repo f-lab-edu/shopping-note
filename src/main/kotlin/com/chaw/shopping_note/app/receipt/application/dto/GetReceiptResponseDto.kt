@@ -13,9 +13,9 @@ data class ReceiptItemResponseDto(
     val id: Long,
     val productName: String,
     val productCode: String,
-    val unitPrice: Double,
+    val unitPrice: Int,
     val quantity: Int,
-    val totalPrice: Double,
+    val totalPrice: Int,
     val category: Category,
     val updatedAt: LocalDateTime,
 )
@@ -25,7 +25,7 @@ data class GetReceiptResponseDto(
     val store: StoreResponseDto?,
     val items: List<ReceiptItemResponseDto>,
     val purchaseAt: LocalDateTime,
-    val totalPrice: Double,
+    val totalPrice: Int,
     val totalCount: Int,
     val createdAt: LocalDateTime,
 ) {
@@ -49,15 +49,15 @@ data class GetReceiptResponseDto(
                         id = it.id!!,
                         productName = it.productName,
                         productCode = it.productCode,
-                        unitPrice = it.unitPrice.toDouble(),  // 타입 맞추기
+                        unitPrice = it.unitPrice,
                         quantity = it.quantity,
-                        totalPrice = it.totalPrice.toDouble(),
+                        totalPrice = it.totalPrice,
                         category = it.category,
                         updatedAt = it.updatedAt!!
                     )
                 },
                 purchaseAt = receipt.purchaseAt!!,
-                totalPrice = receipt.totalPrice.toDouble(),
+                totalPrice = receipt.totalPrice,
                 totalCount = receipt.totalCount,
                 createdAt = receipt.createdAt!!
             )

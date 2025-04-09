@@ -19,7 +19,7 @@ data class Receipt(
     var purchaseAt: LocalDateTime? = null,
 
     // 합계금액
-    var totalPrice: Double,
+    var totalPrice: Int,
 
     // 총 구매건수
     var totalCount: Int,
