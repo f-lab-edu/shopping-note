@@ -14,7 +14,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 
@@ -63,8 +62,7 @@ class DeleteReceiptItemUseCaseTest {
             updatedAt = LocalDateTime.now()
         )
 
-        coEvery { receiptItemRepository.findById(receiptItemId) } returns Mono.just(receiptItem)
-        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.empty()
+        coEvery { receiptService.findReceiptItem(receiptItemId) } returns receiptItem
         coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
 
         val input = DeleteReceiptItemRequestDto(

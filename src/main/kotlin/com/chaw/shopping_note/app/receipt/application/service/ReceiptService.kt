@@ -1,6 +1,8 @@
 package com.chaw.shopping_note.app.receipt.application.service
 
 import com.chaw.shopping_note.app.receipt.domain.Receipt
+import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
+import com.chaw.shopping_note.app.receipt.exception.ReceiptItemNotFoundException
 import com.chaw.shopping_note.app.receipt.exception.ReceiptNotFoundException
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
@@ -19,6 +21,12 @@ class ReceiptService (
 
         receipt.validatePermission(userId)
         return receipt
+    }
+
+    suspend fun findReceiptItem(receiptItemId: Long): ReceiptItem {
+        val receiptItem = receiptItemRepository.findById(receiptItemId).awaitSingleOrNull()
+            ?: throw ReceiptItemNotFoundException()
+        return receiptItem
     }
 
     suspend fun updateReceiptTotal(receipt: Receipt) {

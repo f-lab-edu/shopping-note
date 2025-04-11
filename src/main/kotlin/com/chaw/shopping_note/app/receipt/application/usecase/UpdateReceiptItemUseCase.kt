@@ -1,29 +1,28 @@
 package com.chaw.shopping_note.app.receipt.application.usecase
 
 import com.chaw.shopping_note.app.receipt.application.dto.UpdateReceiptItemRequestDto
+import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
-import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.reactive.awaitFirstOrNull
 import org.springframework.stereotype.Service
-import org.springframework.security.access.AccessDeniedException
 
 @Service
 class UpdateReceiptItemUseCase(
-    private val receiptRepository: ReceiptRepository,
-    private val receiptItemRepository: ReceiptItemRepository
+    private val receiptItemRepository: ReceiptItemRepository,
+    private val receiptService: ReceiptService
 ) {
 
     suspend fun execute(input: UpdateReceiptItemRequestDto): ReceiptItem {
-        val receiptItem = receiptItemRepository.findById(input.receiptItemId).awaitSingleOrNull()
-            ?: throw IllegalArgumentException("ReceiptItem not found")
-        val receipt = receiptRepository.findById(receiptItem.receiptId).awaitSingleOrNull()
-            ?: throw IllegalArgumentException("Receipt with id ${receiptItem.receiptId} not found")
-        if (receipt.userId != input.userId) {
-            throw AccessDeniedException("No Permission")
-        }
+        val receiptItem = receiptService.findReceiptItem(input.receiptItemId)
+        val receipt = receiptService.findReceiptWithPermission(receiptItem.receiptId, input.userId)
+        updateReceiptItem(receiptItem, input)
+        receiptService.updateReceiptTotal(receipt)
 
+        return receiptItem
+    }
+
+    private suspend fun updateReceiptItem(receiptItem: ReceiptItem, input: UpdateReceiptItemRequestDto) {
         receiptItem.update(
             input.productName,
             input.productCode,
@@ -31,14 +30,6 @@ class UpdateReceiptItemUseCase(
             input.quantity,
             input.category
         )
-        receiptItemRepository.save(receiptItem).awaitSingle()
-
-        val receiptItems = receiptItemRepository.findAllByReceiptId(receiptItem.receiptId)
-            .collectList()
-            .awaitSingle()
-        receipt.setTotal(receiptItems)
-        receiptRepository.save(receipt).awaitSingle()
-
-        return receiptItem
+        receiptItemRepository.save(receiptItem).awaitFirstOrNull()
     }
 }
