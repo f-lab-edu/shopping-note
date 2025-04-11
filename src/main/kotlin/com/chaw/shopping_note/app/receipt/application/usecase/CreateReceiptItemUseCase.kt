@@ -1,12 +1,13 @@
 package com.chaw.shopping_note.app.receipt.application.usecase
 
 import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptItemRequestDto
+import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
+import com.chaw.shopping_note.app.receipt.exception.ReceiptNotFoundException
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 
 @Service
@@ -16,13 +17,21 @@ class CreateReceiptItemUseCase(
 ) {
 
     suspend fun execute(input: CreateReceiptItemRequestDto): ReceiptItem {
-        val receipt = receiptRepository.findById(input.receiptId).awaitSingleOrNull()
-            ?: throw IllegalArgumentException("Receipt not found")
+        val receipt = findReceiptWithPermission(input.receiptId, input.userId)
+        val receiptItem = createAndSaveReceiptItem(input)
+        updateReceiptTotal(receipt)
+        return receiptItem
+    }
 
-        if (receipt.userId != input.userId) {
-            throw AccessDeniedException("No Permission")
-        }
+    private suspend fun findReceiptWithPermission(receiptId: Long, userId: Long): Receipt {
+        val receipt = receiptRepository.findById(receiptId).awaitSingleOrNull()
+            ?: throw ReceiptNotFoundException(receiptId)
 
+        receipt.validatePermission(userId)
+        return receipt
+    }
+
+    private suspend fun createAndSaveReceiptItem(input: CreateReceiptItemRequestDto): ReceiptItem {
         val receiptItem = ReceiptItem.create(
             receiptId = input.receiptId,
             productName = input.productName,
@@ -33,15 +42,14 @@ class CreateReceiptItemUseCase(
         )
 
         receiptItemRepository.save(receiptItem).awaitSingle()
-
-        val receiptItems = receiptItemRepository.findAllByReceiptId(receiptItem.receiptId)
-            .collectList()
-            .awaitSingle()
-
-        receipt.setTotal(receiptItems)
-        receiptRepository.save(receipt).awaitSingle()
-
         return receiptItem
     }
 
+    private suspend fun updateReceiptTotal(receipt: Receipt) {
+        val receiptItems = receiptItemRepository.findAllByReceiptId(receipt.id!!)
+            .collectList()
+            .awaitSingle()
+        receipt.setTotal(receiptItems)
+        receiptRepository.save(receipt).awaitSingle()
+    }
 }
