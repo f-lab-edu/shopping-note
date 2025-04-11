@@ -2,6 +2,8 @@ package com.chaw.shopping_note.app.application.usecase.unit
 
 import com.chaw.shopping_note.app.receipt.application.dto.GetReceiptRequestDto
 import com.chaw.shopping_note.app.receipt.application.mapper.ReceiptMapperImpl
+import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
+import com.chaw.shopping_note.app.receipt.application.service.StoreService
 import com.chaw.shopping_note.app.receipt.application.usecase.GetReceiptUseCase
 import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.StoreType
@@ -24,15 +26,15 @@ import kotlin.test.assertFailsWith
 
 class GetReceiptUseCaseTest {
 
-    private val storeRepository = mockk<StoreRepository>()
-    private val receiptRepository = mockk<ReceiptRepository>()
     private val receiptItemRepository = mockk<ReceiptItemRepository>()
+    private val receiptService: ReceiptService = mockk<ReceiptService>()
+    private val storeService: StoreService = mockk<StoreService>()
     private val receiptMapper = ReceiptMapperImpl()
 
     private val getReceiptUseCase = GetReceiptUseCase(
-        storeRepository,
-        receiptRepository,
         receiptItemRepository,
+        receiptService,
+        storeService,
         receiptMapper
     )
 
@@ -84,8 +86,8 @@ class GetReceiptUseCaseTest {
             )
         )
 
-        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
-        coEvery { storeRepository.findById(receipt.storeId) } returns Mono.just(store)
+        coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
+        coEvery { storeService.findStoreById(receipt.storeId) } returns store
         coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.fromIterable(receiptItems)
 
         val input = GetReceiptRequestDto(
@@ -101,53 +103,5 @@ class GetReceiptUseCaseTest {
         assertEquals(store.name, result.store?.name)
         assertEquals(2, result.items.size)
         assertEquals("상품1", result.items[0].productName)
-    }
-
-    @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
-        // given
-        val receiptId = 1L
-        val userId = 123L
-        val wrongUserId = 999L
-
-        val receipt = Receipt(
-            id = receiptId,
-            userId = userId,
-            storeId = 10L,
-            purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000,
-            totalCount = 2,
-            createdAt = LocalDateTime.now()
-        )
-
-        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
-
-        val input = GetReceiptRequestDto(
-            userId = wrongUserId,
-            receiptId = receiptId
-        )
-
-        // when & then
-        assertFailsWith<AccessDeniedException> {
-            getReceiptUseCase.execute(input)
-        }
-    }
-
-    @Test
-    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
-        // given
-        val wrongReceiptId = 999L
-
-        coEvery { receiptRepository.findById(wrongReceiptId) } returns Mono.empty()
-
-        val input = GetReceiptRequestDto(
-            userId = 123L,
-            receiptId = wrongReceiptId
-        )
-
-        // when & then
-        assertFailsWith<IllegalArgumentException> {
-            getReceiptUseCase.execute(input)
-        }
     }
 }
