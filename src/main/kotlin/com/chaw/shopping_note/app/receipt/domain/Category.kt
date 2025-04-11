@@ -1,13 +1,10 @@
 package com.chaw.shopping_note.app.receipt.domain
 
-enum class Category {
-    FOOD,
-    BEVERAGE,
-    HOUSEHOLD,
-    KITCHEN,
-    ELECTRONICS,
-    CLOTHING,
-    STATIONERY,
-    HEALTH,
-    ETC
-}
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
+
+@Table("category")
+data class Category (
+    @Id val id: Long? = null,
+    val name: String,
+)

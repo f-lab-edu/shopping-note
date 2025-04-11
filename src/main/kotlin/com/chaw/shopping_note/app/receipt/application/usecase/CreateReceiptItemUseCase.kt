@@ -23,11 +23,11 @@ class CreateReceiptItemUseCase(
     private suspend fun createAndSaveReceiptItem(input: CreateReceiptItemRequestDto): ReceiptItem {
         val receiptItem = ReceiptItem.create(
             receiptId = input.receiptId,
+            categoryId = input.categoryId,
             productName = input.productName,
             productCode = input.productCode,
             unitPrice = input.unitPrice,
             quantity = input.quantity,
-            category = input.category
         )
 
         receiptItemRepository.save(receiptItem).awaitSingle()

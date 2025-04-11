@@ -42,6 +42,7 @@ class UpdateReceiptItemUseCaseTest {
         val receiptId = 1L
         val receiptItemId = 100L
         val userId = 123L
+        val categoryId = 1L
 
         val receipt = Receipt(
             id = receiptId,
@@ -61,7 +62,7 @@ class UpdateReceiptItemUseCaseTest {
             unitPrice = 5000,
             quantity = 2,
             totalPrice = 10000,
-            category = Category.FOOD,
+            categoryId = categoryId,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
@@ -72,11 +73,11 @@ class UpdateReceiptItemUseCaseTest {
         val input = UpdateReceiptItemRequestDto(
             userId = userId,
             receiptItemId = receiptItemId,
+            categoryId = categoryId,
             productName = "수정된상품",
             productCode = "P999",
             unitPrice = 6000,
             quantity = 3,
-            category = Category.HEALTH
         )
 
         // when
@@ -88,7 +89,7 @@ class UpdateReceiptItemUseCaseTest {
         assertEquals(6000, result.unitPrice)
         assertEquals(3, result.quantity)
         assertEquals(6000 * 3, result.totalPrice)
-        assertEquals(Category.HEALTH, result.category)
+        assertEquals(categoryId, result.categoryId)
 
         coVerify(exactly = 1) { receiptItemRepository.save(receiptItem) }
         coVerify(exactly = 1) { receiptService.updateReceiptTotal(any()) }
