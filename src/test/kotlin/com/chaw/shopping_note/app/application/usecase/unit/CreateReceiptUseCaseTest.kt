@@ -42,8 +42,6 @@ class CreateReceiptUseCaseTest {
         // then
         assertEquals(input.userId, result.userId)
         assertEquals(input.storeId, result.storeId)
-        assertEquals(0, result.totalPrice)
-        assertEquals(0, result.totalCount)
         assertEquals(input.purchaseAt, result.purchaseAt)
 
         coVerify(exactly = 1) { receiptRepository.save(any()) }

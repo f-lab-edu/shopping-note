@@ -53,8 +53,6 @@ class GetReceiptUseCaseTest {
             userId = userId,
             storeId = store.id!!,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000,
-            totalCount = 2,
             createdAt = LocalDateTime.now()
         )
 

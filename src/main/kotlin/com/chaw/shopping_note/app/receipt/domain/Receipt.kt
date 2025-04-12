@@ -19,22 +19,10 @@ data class Receipt(
     // 구매일
     var purchaseAt: LocalDateTime? = null,
 
-    // 합계금액
-    var totalPrice: Int,
-
-    // 총 구매건수
-    var totalCount: Int,
-
     // 생성일
     @CreatedDate
     val createdAt: LocalDateTime? = null
 ) {
-    fun setTotal(receiptItems: List<ReceiptItem>) {
-        val totalPrice = receiptItems.sumOf { it.totalPrice }
-        this.totalPrice = totalPrice
-        this.totalCount = receiptItems.size
-    }
-
     fun validatePermission(userId: Long) {
         if (this.userId != userId) {
             throw ReceiptAccessDeniedException(this.id!!, userId)

@@ -15,9 +15,7 @@ class UpdateReceiptItemUseCase(
 
     suspend fun execute(input: UpdateReceiptItemRequestDto): ReceiptItem {
         val receiptItem = receiptService.findReceiptItem(input.receiptItemId)
-        val receipt = receiptService.findReceiptWithPermission(receiptItem.receiptId, input.userId)
         updateReceiptItem(receiptItem, input)
-        receiptService.updateReceiptTotal(receipt)
 
         return receiptItem
     }

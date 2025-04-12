@@ -49,8 +49,6 @@ class UpdateReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000,
-            totalCount = 2,
             createdAt = LocalDateTime.now()
         )
 
@@ -92,7 +90,6 @@ class UpdateReceiptItemUseCaseTest {
         assertEquals(categoryId, result.categoryId)
 
         coVerify(exactly = 1) { receiptItemRepository.save(receiptItem) }
-        coVerify(exactly = 1) { receiptService.updateReceiptTotal(any()) }
     }
 
 }

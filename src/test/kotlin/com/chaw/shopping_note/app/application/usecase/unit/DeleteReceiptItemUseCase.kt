@@ -3,7 +3,6 @@ package com.chaw.shopping_note.app.application.usecase.unit
 import com.chaw.shopping_note.app.receipt.application.dto.DeleteReceiptItemRequestDto
 import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
 import com.chaw.shopping_note.app.receipt.application.usecase.DeleteReceiptItemUseCase
-import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
@@ -45,8 +44,6 @@ class DeleteReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000,
-            totalCount = 2,
             createdAt = LocalDateTime.now()
         )
 
@@ -78,6 +75,5 @@ class DeleteReceiptItemUseCaseTest {
         assertTrue(result)
 
         coVerify(exactly = 1) { receiptItemRepository.delete(receiptItem) }
-        coVerify(exactly = 1) { receiptService.updateReceiptTotal(any()) }
     }
 }
