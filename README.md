@@ -1,2 +1,29 @@
-# shopping-note
-장보기 메모장
+# 쇼핑노트
+
+마트 영수증을 스캔하면 자동으로 쇼핑 데이터를 저장해주는 서비스
+
+## 📌 기획 배경
+- 저번에 샀던 게 뭐였더라? 얼마에 샀었지?
+- 이번에 사야될 목록을 저번에 산 것들 중에 골라서 목록을 만들고 싶어
+- 영수증을 사진 찍는 것만으로 자동으로 항목을 저장하고
+- 장보기 목록을 쉽게 만들 수 있는 개인 장보기를 도와주는 서비스입니다.
+
+## 🛠 기술 스택
+- Spring Boot
+- Kotlin
+- MySQL
+- Redis
+
+## 🚀 주요 기능
+- OCR을 통한 영수증 인식
+- 항목 자동 분류 및 저장
+
+## 📸 스크린샷
+
+## 🔧 설치 방법
+```bash
+git clone [https://github.com/yourname/shopping-note](https://github.com/f-lab-edu/shopping-note.git
+```
+
+## 📮 API 명세
+- [Swagger 문서 보기](http://localhost:8080/swagger-ui)
