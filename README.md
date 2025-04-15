@@ -13,6 +13,7 @@
 - Kotlin
 - MySQL
 - Redis
+- Docker
 
 ## 🚀 주요 기능
 - OCR을 통한 영수증 인식
@@ -22,7 +23,7 @@
 
 ## 🔧 설치 방법
 ```bash
-git clone [https://github.com/yourname/shopping-note](https://github.com/f-lab-edu/shopping-note.git
+git clone https://github.com/f-lab-edu/shopping-note.git
 ```
 
 ## 📮 API 명세
