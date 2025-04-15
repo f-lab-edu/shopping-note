@@ -28,7 +28,7 @@ class CreateReceiptUseCaseTest {
     }
 
     @Test
-    fun `영수증을 생성할 수 있다`() = runTest {
+    fun success() = runTest {
         // given
         val input = CreateReceiptRequestDto(
             userId = 123L,

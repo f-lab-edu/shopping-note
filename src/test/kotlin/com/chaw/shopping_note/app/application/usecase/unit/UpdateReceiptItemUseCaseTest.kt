@@ -37,7 +37,7 @@ class UpdateReceiptItemUseCaseTest {
     }
 
     @Test
-    fun `영수증 항목을 수정할 수 있다`() = runTest {
+    fun success() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L
