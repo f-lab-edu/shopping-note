@@ -13,11 +13,10 @@
 - 항목 자동 분류 및 저장
 
 ## 🛠 기술 스택
-- Spring Boot
-- Kotlin
-- MySQL
-- Redis
-- Docker
+- **Backend**: Spring Boot, Kotlin
+- **Database**: MySQL, Redis
+- **OCR**: AWS Textract (또는 Tesseract), NCloud OCR
+- **Infra**: AWS ECS Fargate, S3, CloudFront
 
 ## 📸 스크린샷
 
