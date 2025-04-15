@@ -8,11 +8,10 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import java.time.LocalDateTime
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
 
 class CreateReceiptUseCaseTest {
 
@@ -22,19 +21,11 @@ class CreateReceiptUseCaseTest {
         receiptRepository
     )
 
-    @BeforeEach
-    fun setUp() {
-        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg<Receipt>()) }
-    }
-
     @Test
     fun success() = runTest {
         // given
-        val input = CreateReceiptRequestDto(
-            userId = 123L,
-            storeId = 10L,
-            purchaseAt = LocalDateTime.now()
-        )
+        val input = createTestInput()
+        mockRepositorySuccess()
 
         // when
         val result = createReceiptUseCase.execute(input)
@@ -45,5 +36,17 @@ class CreateReceiptUseCaseTest {
         assertEquals(input.purchaseAt, result.purchaseAt)
 
         coVerify(exactly = 1) { receiptRepository.save(any()) }
+    }
+
+    private fun createTestInput(): CreateReceiptRequestDto {
+        return CreateReceiptRequestDto(
+            userId = 123L,
+            storeId = 10L,
+            purchaseAt = LocalDateTime.now()
+        )
+    }
+
+    private fun mockRepositorySuccess() {
+        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg<Receipt>()) }
     }
 }

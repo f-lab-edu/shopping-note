@@ -34,33 +34,56 @@ class GetReceiptUseCaseTest {
     @Test
     fun success() = runTest {
         // given
-        val receiptId = 1L
-        val userId = 123L
-        val categoryId = 1L
-        val storeTypeId = 1L
-        val store = Store(
+        val store = createStore()
+        val category = createCategory()
+        val receipt = createReceipt(store)
+        val receiptItems = createReceiptItems(receipt)
+        mockServiceSuccess(store, listOf(category), receipt, receiptItems)
+        val input = createTestInput(receipt)
+
+        // when
+        val result = getReceiptUseCase.execute(input)
+
+        // then
+        assertEquals(receipt.id!!, result.id)
+        assertEquals(store.name, result.store?.name)
+        assertEquals(2, result.items.size)
+        assertEquals(receiptItems[0].productName, result.items[0].productName)
+        assertEquals(receiptItems[0].categoryId, result.items[0].category.id)
+        assertEquals(category.name, result.items[0].category.name)
+    }
+
+    private fun createStore(): Store {
+        return Store(
             id = 10L,
-            storeTypeId = storeTypeId,
+            storeTypeId = 1L,
             name = "코스트코 공세점",
         )
-        val category = Category(
-            id = categoryId,
+    }
+
+    private fun createCategory(): Category {
+        return Category(
+            id = 1L,
             name = "FOOD",
         )
+    }
 
-        val receipt = Receipt(
-            id = receiptId,
-            userId = userId,
+    private fun createReceipt(store: Store): Receipt {
+        return Receipt(
+            id = 1L,
+            userId = 123L,
             storeId = store.id!!,
             purchaseAt = LocalDateTime.now(),
             createdAt = LocalDateTime.now()
         )
+    }
 
-        val receiptItems = listOf(
+    private fun createReceiptItems(receipt: Receipt): List<ReceiptItem> {
+        return listOf(
             ReceiptItem(
                 id = 100L,
-                receiptId = receiptId,
-                categoryId = categoryId,
+                receiptId = receipt.id!!,
+                categoryId = 1L,
                 productName = "상품1",
                 productCode = "P001",
                 unitPrice = 5000,
@@ -71,8 +94,8 @@ class GetReceiptUseCaseTest {
             ),
             ReceiptItem(
                 id = 101L,
-                receiptId = receiptId,
-                categoryId = categoryId,
+                receiptId = receipt.id!!,
+                categoryId = 1L,
                 productName = "상품2",
                 productCode = "P002",
                 unitPrice = 5000,
@@ -82,27 +105,20 @@ class GetReceiptUseCaseTest {
                 updatedAt = LocalDateTime.now()
             )
         )
+    }
+
+    private fun mockServiceSuccess(store: Store, categories: List<Category>, receipt: Receipt, receiptItems: List<ReceiptItem>) {
         val categoryIds = receiptItems.map { it.categoryId }.distinct()
-
-        coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
-        coEvery { receiptService.findAllReceiptItemByReceiptId(receiptId) } returns receiptItems
+        coEvery { receiptService.findReceiptWithPermission(receipt.id!!, receipt.userId) } returns receipt
+        coEvery { receiptService.findAllReceiptItemByReceiptId(receipt.id!!) } returns receiptItems
         coEvery { storeService.findStoreById(receipt.storeId) } returns store
-        coEvery { categoryService.findCategoryMapByIds(categoryIds) } returns mapOf(Pair(categoryId, category))
+        coEvery { categoryService.findCategoryMapByIds(categoryIds) } returns categories.associateBy { it.id!! }
+    }
 
-        val input = GetReceiptRequestDto(
-            userId = userId,
-            receiptId = receiptId
+    private fun createTestInput(receipt: Receipt): GetReceiptRequestDto {
+        return GetReceiptRequestDto(
+            userId = receipt.userId,
+            receiptId = receipt.id!!
         )
-
-        // when
-        val result = getReceiptUseCase.execute(input)
-
-        // then
-        assertEquals(receiptId, result.id)
-        assertEquals(store.name, result.store?.name)
-        assertEquals(2, result.items.size)
-        assertEquals(receiptItems[0].productName, result.items[0].productName)
-        assertEquals(receiptItems[0].categoryId, result.items[0].category.id)
-        assertEquals(category.name, result.items[0].category.name)
     }
 }
