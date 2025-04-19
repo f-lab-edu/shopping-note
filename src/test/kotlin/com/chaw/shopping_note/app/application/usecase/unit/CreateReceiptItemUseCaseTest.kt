@@ -4,8 +4,10 @@ import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptItemReque
 import com.chaw.shopping_note.app.receipt.application.usecase.CreateReceiptItemUseCase
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
