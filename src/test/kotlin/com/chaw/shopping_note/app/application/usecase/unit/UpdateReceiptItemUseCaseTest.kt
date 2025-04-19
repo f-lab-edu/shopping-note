@@ -3,23 +3,17 @@ package com.chaw.shopping_note.app.application.usecase.unit
 import com.chaw.shopping_note.app.receipt.application.dto.UpdateReceiptItemRequestDto
 import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
 import com.chaw.shopping_note.app.receipt.application.usecase.UpdateReceiptItemUseCase
-import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
-import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.security.access.AccessDeniedException
-import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
-import kotlin.test.assertFailsWith
 
 class UpdateReceiptItemUseCaseTest {
 
@@ -31,52 +25,14 @@ class UpdateReceiptItemUseCaseTest {
         receiptService
     )
 
-    @BeforeEach
-    fun setUp() {
-        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg()) }
-    }
-
     @Test
     fun success() = runTest {
         // given
-        val receiptId = 1L
-        val receiptItemId = 100L
-        val userId = 123L
-        val categoryId = 1L
-
-        val receipt = Receipt(
-            id = receiptId,
-            userId = userId,
-            storeId = 10L,
-            purchaseAt = LocalDateTime.now(),
-            createdAt = LocalDateTime.now()
-        )
-
-        val receiptItem = ReceiptItem(
-            id = receiptItemId,
-            receiptId = receiptId,
-            productName = "상품1",
-            productCode = "P001",
-            unitPrice = 5000,
-            quantity = 2,
-            totalPrice = 10000,
-            categoryId = categoryId,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
-
-        coEvery { receiptService.findReceiptItem(receiptItemId) } returns receiptItem
-        coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
-
-        val input = UpdateReceiptItemRequestDto(
-            userId = userId,
-            receiptItemId = receiptItemId,
-            categoryId = categoryId,
-            productName = "수정된상품",
-            productCode = "P999",
-            unitPrice = 6000,
-            quantity = 3,
-        )
+        val receipt = createReceipt()
+        val receiptItem = createReceiptItem(receipt)
+        mockService(receipt, receiptItem)
+        mockRepository()
+        val input = createTestInput(receipt, receiptItem)
 
         // when
         val result = updateReceiptItemUseCase.execute(input)
@@ -87,9 +43,54 @@ class UpdateReceiptItemUseCaseTest {
         assertEquals(6000, result.unitPrice)
         assertEquals(3, result.quantity)
         assertEquals(6000 * 3, result.totalPrice)
-        assertEquals(categoryId, result.categoryId)
+        assertEquals(receiptItem.categoryId, result.categoryId)
 
         coVerify(exactly = 1) { receiptItemRepository.save(receiptItem) }
     }
 
+    private fun createReceipt(): Receipt {
+        return Receipt(
+            id = 1L,
+            userId = 123L,
+            storeId = 10L,
+            purchaseAt = LocalDateTime.now(),
+            createdAt = LocalDateTime.now()
+        )
+    }
+
+    private fun createReceiptItem(receipt: Receipt): ReceiptItem {
+        return ReceiptItem(
+            id = 100L,
+            receiptId = receipt.id!!,
+            productName = "상품1",
+            productCode = "P001",
+            unitPrice = 5000,
+            quantity = 2,
+            totalPrice = 10000,
+            categoryId = 1L,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
+    }
+
+    private fun mockService(receipt: Receipt, receiptItem: ReceiptItem) {
+        coEvery { receiptService.findReceiptItem(receiptItem.id!!) } returns receiptItem
+        coEvery { receiptService.findReceiptWithPermission(receipt.id!!, receipt.userId) } returns receipt
+    }
+
+    private fun mockRepository() {
+        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg()) }
+    }
+
+    private fun createTestInput(receipt: Receipt, receiptItem: ReceiptItem): UpdateReceiptItemRequestDto {
+        return UpdateReceiptItemRequestDto(
+            userId = receipt.userId,
+            receiptItemId = receiptItem.id!!,
+            categoryId = receiptItem.categoryId,
+            productName = "수정된상품",
+            productCode = "P999",
+            unitPrice = 6000,
+            quantity = 3,
+        )
+    }
 }

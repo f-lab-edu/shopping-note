@@ -26,22 +26,8 @@ class CreateReceiptItemUseCaseTest {
     @Test
     fun success() = runTest {
         // given
-        val receiptId = 1L
-        val userId = 123L
-        val categoryId = 1L
-
-        val input = CreateReceiptItemRequestDto(
-            userId = userId,
-            categoryId = categoryId,
-            receiptId = receiptId,
-            productName = "상품1",
-            productCode = "P001",
-            unitPrice = 5000,
-            quantity = 2,
-        )
-
-        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg<ReceiptItem>()) }
-        coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.empty()
+        val input = createTestInput()
+        mockRepositorySuccess(input)
 
         // when
         val result = createReceiptItemUseCase.execute(input)
@@ -51,5 +37,22 @@ class CreateReceiptItemUseCaseTest {
         assertEquals(input.unitPrice * input.quantity, result.totalPrice)
 
         coVerify(exactly = 1) { receiptItemRepository.save(any()) }
+    }
+
+    private fun createTestInput(): CreateReceiptItemRequestDto {
+        return CreateReceiptItemRequestDto(
+            userId = 1L,
+            categoryId = 123L,
+            receiptId = 1L,
+            productName = "상품1",
+            productCode = "P001",
+            unitPrice = 5000,
+            quantity = 2,
+        )
+    }
+
+    private fun mockRepositorySuccess(input: CreateReceiptItemRequestDto) {
+        coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg<ReceiptItem>()) }
+        coEvery { receiptItemRepository.findAllByReceiptId(input.receiptId) } returns Flux.empty()
     }
 }

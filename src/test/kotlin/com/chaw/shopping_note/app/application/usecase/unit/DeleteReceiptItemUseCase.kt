@@ -11,7 +11,6 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
@@ -26,47 +25,14 @@ class DeleteReceiptItemUseCaseTest {
         receiptService
     )
 
-    @BeforeEach
-    fun setUp() {
-        coEvery { receiptItemRepository.delete(any()) } answers { Mono.empty() }
-    }
-
     @Test
     fun success() = runTest {
         // given
-        val receiptId = 1L
-        val receiptItemId = 100L
-        val userId = 123L
-        val categoryId = 1L
-
-        val receipt = Receipt(
-            id = receiptId,
-            userId = userId,
-            storeId = 10L,
-            purchaseAt = LocalDateTime.now(),
-            createdAt = LocalDateTime.now()
-        )
-
-        val receiptItem = ReceiptItem(
-            id = receiptItemId,
-            receiptId = receiptId,
-            categoryId = categoryId,
-            productName = "상품1",
-            productCode = "P001",
-            unitPrice = 5000,
-            quantity = 2,
-            totalPrice = 10000,
-            createdAt = LocalDateTime.now(),
-            updatedAt = LocalDateTime.now()
-        )
-
-        coEvery { receiptService.findReceiptItem(receiptItemId) } returns receiptItem
-        coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
-
-        val input = DeleteReceiptItemRequestDto(
-            userId = userId,
-            receiptItemId = receiptItemId
-        )
+        val receipt = createReceipt()
+        val receiptItem = createReceiptItem(receipt)
+        mockRepositorySuccess()
+        mockServiceFindSuccess(receipt, receiptItem)
+        val input = createTestInput(receipt, receiptItem)
 
         // when
         val result = deleteReceiptItemUseCase.execute(input)
@@ -75,5 +41,46 @@ class DeleteReceiptItemUseCaseTest {
         assertTrue(result)
 
         coVerify(exactly = 1) { receiptItemRepository.delete(receiptItem) }
+    }
+
+    private fun createReceipt(): Receipt {
+        return Receipt(
+            id = 1L,
+            userId = 123L,
+            storeId = 10L,
+            purchaseAt = LocalDateTime.now(),
+            createdAt = LocalDateTime.now()
+        )
+    }
+
+    private fun createReceiptItem(receipt: Receipt): ReceiptItem {
+        return ReceiptItem(
+            id = 100L,
+            receiptId = receipt.id!!,
+            categoryId = 1L,
+            productName = "상품1",
+            productCode = "P001",
+            unitPrice = 5000,
+            quantity = 2,
+            totalPrice = 10000,
+            createdAt = LocalDateTime.now(),
+            updatedAt = LocalDateTime.now()
+        )
+    }
+
+    private fun mockRepositorySuccess() {
+        coEvery { receiptItemRepository.delete(any()) } answers { Mono.empty() }
+    }
+
+    private fun mockServiceFindSuccess(receipt: Receipt, receiptItem: ReceiptItem) {
+        coEvery { receiptService.findReceiptItem(receiptItem.id!!) } returns receiptItem
+        coEvery { receiptService.findReceiptWithPermission(receipt.id!!, receipt.userId) } returns receipt
+    }
+
+    private fun createTestInput(receipt: Receipt, receiptItem: ReceiptItem): DeleteReceiptItemRequestDto {
+        return DeleteReceiptItemRequestDto(
+            userId = receipt.userId,
+            receiptItemId = receiptItem.id!!
+        )
     }
 }
