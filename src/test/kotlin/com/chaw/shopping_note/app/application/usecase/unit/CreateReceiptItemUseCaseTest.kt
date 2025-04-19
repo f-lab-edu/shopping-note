@@ -34,6 +34,7 @@ class CreateReceiptItemUseCaseTest {
         // given
         val receiptId = 1L
         val userId = 123L
+        val categoryId = 1L
 
         val receipt = Receipt(
             id = receiptId,
@@ -47,12 +48,12 @@ class CreateReceiptItemUseCaseTest {
 
         val input = CreateReceiptItemRequestDto(
             userId = userId,
+            categoryId = categoryId,
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
             unitPrice = 5000,
             quantity = 2,
-            category = Category.FOOD
         )
 
         coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt

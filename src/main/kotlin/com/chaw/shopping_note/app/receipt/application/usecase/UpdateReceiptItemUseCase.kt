@@ -24,11 +24,11 @@ class UpdateReceiptItemUseCase(
 
     private suspend fun updateReceiptItem(receiptItem: ReceiptItem, input: UpdateReceiptItemRequestDto) {
         receiptItem.update(
+            input.categoryId,
             input.productName,
             input.productCode,
             input.unitPrice,
             input.quantity,
-            input.category
         )
         receiptItemRepository.save(receiptItem).awaitFirstOrNull()
     }

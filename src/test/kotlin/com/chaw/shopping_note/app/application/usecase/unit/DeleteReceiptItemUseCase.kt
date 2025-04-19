@@ -38,6 +38,7 @@ class DeleteReceiptItemUseCaseTest {
         val receiptId = 1L
         val receiptItemId = 100L
         val userId = 123L
+        val categoryId = 1L
 
         val receipt = Receipt(
             id = receiptId,
@@ -52,12 +53,12 @@ class DeleteReceiptItemUseCaseTest {
         val receiptItem = ReceiptItem(
             id = receiptItemId,
             receiptId = receiptId,
+            categoryId = categoryId,
             productName = "상품1",
             productCode = "P001",
             unitPrice = 5000,
             quantity = 2,
             totalPrice = 10000,
-            category = Category.FOOD,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
         )
