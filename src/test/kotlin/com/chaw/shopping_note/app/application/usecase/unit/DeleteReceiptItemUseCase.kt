@@ -48,7 +48,7 @@ class DeleteReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )
@@ -58,9 +58,9 @@ class DeleteReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             category = Category.FOOD,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -98,7 +98,7 @@ class DeleteReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )
@@ -108,9 +108,9 @@ class DeleteReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             category = Category.FOOD,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()

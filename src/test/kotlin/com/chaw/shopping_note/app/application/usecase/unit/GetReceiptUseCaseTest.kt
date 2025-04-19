@@ -49,7 +49,7 @@ class GetReceiptUseCaseTest {
             userId = userId,
             storeId = store.id!!,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )
@@ -60,9 +60,9 @@ class GetReceiptUseCaseTest {
                 receiptId = receiptId,
                 productName = "상품1",
                 productCode = "P001",
-                unitPrice = 5000.0,
+                unitPrice = 5000,
                 quantity = 1,
-                totalPrice = 5000.0,
+                totalPrice = 5000,
                 category = Category.FOOD,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
@@ -72,9 +72,9 @@ class GetReceiptUseCaseTest {
                 receiptId = receiptId,
                 productName = "상품2",
                 productCode = "P002",
-                unitPrice = 5000.0,
+                unitPrice = 5000,
                 quantity = 1,
-                totalPrice = 5000.0,
+                totalPrice = 5000,
                 category = Category.FOOD,
                 createdAt = LocalDateTime.now(),
                 updatedAt = LocalDateTime.now()
@@ -112,7 +112,7 @@ class GetReceiptUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )

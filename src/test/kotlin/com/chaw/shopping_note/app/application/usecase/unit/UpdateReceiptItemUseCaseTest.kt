@@ -48,7 +48,7 @@ class UpdateReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )
@@ -58,9 +58,9 @@ class UpdateReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             category = Category.FOOD,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -75,7 +75,7 @@ class UpdateReceiptItemUseCaseTest {
             receiptItemId = receiptItemId,
             productName = "수정된상품",
             productCode = "P999",
-            unitPrice = 6000.0,
+            unitPrice = 6000,
             quantity = 3,
             category = Category.HEALTH
         )
@@ -86,9 +86,9 @@ class UpdateReceiptItemUseCaseTest {
         // then
         assertEquals("수정된상품", result.productName)
         assertEquals("P999", result.productCode)
-        assertEquals(6000.0, result.unitPrice)
+        assertEquals(6000, result.unitPrice)
         assertEquals(3, result.quantity)
-        assertEquals(6000.0 * 3, result.totalPrice)
+        assertEquals(6000 * 3, result.totalPrice)
         assertEquals(Category.HEALTH, result.category)
 
         coVerify(exactly = 1) { receiptItemRepository.save(receiptItem) }
@@ -108,7 +108,7 @@ class UpdateReceiptItemUseCaseTest {
             userId = userId,
             storeId = 10L,
             purchaseAt = LocalDateTime.now(),
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             totalCount = 2,
             createdAt = LocalDateTime.now()
         )
@@ -118,9 +118,9 @@ class UpdateReceiptItemUseCaseTest {
             receiptId = receiptId,
             productName = "상품1",
             productCode = "P001",
-            unitPrice = 5000.0,
+            unitPrice = 5000,
             quantity = 2,
-            totalPrice = 10000.0,
+            totalPrice = 10000,
             category = Category.FOOD,
             createdAt = LocalDateTime.now(),
             updatedAt = LocalDateTime.now()
@@ -134,7 +134,7 @@ class UpdateReceiptItemUseCaseTest {
             receiptItemId = receiptItemId,
             productName = "수정된상품",
             productCode = "P999",
-            unitPrice = 6000.0,
+            unitPrice = 6000,
             quantity = 3,
             category = Category.HEALTH
         )
@@ -157,7 +157,7 @@ class UpdateReceiptItemUseCaseTest {
             receiptItemId = wrongReceiptItemId,
             productName = "수정된상품",
             productCode = "P999",
-            unitPrice = 6000.0,
+            unitPrice = 6000,
             quantity = 3,
             category = Category.HEALTH
         )
