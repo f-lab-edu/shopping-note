@@ -1,32 +1,32 @@
 package com.chaw.shopping_note.app.application.usecase.unit
 
 import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptItemRequestDto
+import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
 import com.chaw.shopping_note.app.receipt.application.usecase.CreateReceiptItemUseCase
 import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.Receipt
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
-import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
+import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.security.access.AccessDeniedException
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
-import kotlin.test.assertFailsWith
 
 class CreateReceiptItemUseCaseTest {
 
-    private val receiptRepository = mockk<ReceiptRepository>(relaxed = true)
     private val receiptItemRepository = mockk<ReceiptItemRepository>(relaxed = true)
+    private val receiptService = mockk<ReceiptService>(relaxed = true)
 
     private val createReceiptItemUseCase = CreateReceiptItemUseCase(
-        receiptRepository,
-        receiptItemRepository
+        receiptItemRepository,
+        receiptService
     )
 
     @Test
@@ -55,10 +55,10 @@ class CreateReceiptItemUseCaseTest {
             category = Category.FOOD
         )
 
-        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
+        coEvery { receiptService.findReceiptWithPermission(receiptId, userId) } returns receipt
+        coEvery { receiptService.updateReceiptTotal(receipt) } just Runs
         coEvery { receiptItemRepository.save(any()) } answers { Mono.just(firstArg<ReceiptItem>()) }
         coEvery { receiptItemRepository.findAllByReceiptId(receiptId) } returns Flux.empty()
-        coEvery { receiptRepository.save(any()) } answers { Mono.just(firstArg()) }
 
         // when
         val result = createReceiptItemUseCase.execute(input)
@@ -68,64 +68,6 @@ class CreateReceiptItemUseCaseTest {
         assertEquals(input.unitPrice * input.quantity, result.totalPrice)
 
         coVerify(exactly = 1) { receiptItemRepository.save(any()) }
-        coVerify(exactly = 1) { receiptRepository.save(any()) }
-    }
-
-    @Test
-    fun `userId가 다르면 AccessDeniedException이 발생한다`() = runTest {
-        // given
-        val receiptId = 1L
-        val userId = 123L
-        val wrongUserId = 999L
-
-        val receipt = Receipt(
-            id = receiptId,
-            userId = userId,
-            storeId = 10L,
-            purchaseAt = LocalDateTime.now(),
-            totalPrice = 0,
-            totalCount = 0,
-            createdAt = LocalDateTime.now()
-        )
-
-        val input = CreateReceiptItemRequestDto(
-            userId = wrongUserId,
-            receiptId = receiptId,
-            productName = "상품1",
-            productCode = "P001",
-            unitPrice = 5000,
-            quantity = 2,
-            category = Category.FOOD
-        )
-
-        coEvery { receiptRepository.findById(receiptId) } returns Mono.just(receipt)
-
-        // when & then
-        assertFailsWith<AccessDeniedException> {
-            createReceiptItemUseCase.execute(input)
-        }
-    }
-
-    @Test
-    fun `receiptId가 잘못되면 IllegalArgumentException이 발생한다`() = runTest {
-        // given
-        val wrongReceiptId = 999L
-
-        val input = CreateReceiptItemRequestDto(
-            userId = 123L,
-            receiptId = wrongReceiptId,
-            productName = "상품1",
-            productCode = "P001",
-            unitPrice = 5000,
-            quantity = 2,
-            category = Category.FOOD
-        )
-
-        coEvery { receiptRepository.findById(wrongReceiptId) } returns Mono.empty()
-
-        // when & then
-        assertFailsWith<IllegalArgumentException> {
-            createReceiptItemUseCase.execute(input)
-        }
+        coVerify(exactly = 1) { receiptService.updateReceiptTotal(any()) }
     }
 }

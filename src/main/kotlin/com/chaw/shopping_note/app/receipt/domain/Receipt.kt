@@ -1,5 +1,6 @@
 package com.chaw.shopping_note.app.receipt.domain
 
+import com.chaw.shopping_note.app.receipt.exception.ReceiptAccessDeniedException
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
@@ -32,5 +33,11 @@ data class Receipt(
         val totalPrice = receiptItems.sumOf { it.totalPrice }
         this.totalPrice = totalPrice
         this.totalCount = receiptItems.size
+    }
+
+    fun validatePermission(userId: Long) {
+        if (this.userId != userId) {
+            throw ReceiptAccessDeniedException(this.id!!, userId)
+        }
     }
 }

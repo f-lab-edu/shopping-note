@@ -1,28 +1,26 @@
 package com.chaw.shopping_note.app.receipt.application.usecase
 
 import com.chaw.shopping_note.app.receipt.application.dto.CreateReceiptItemRequestDto
+import com.chaw.shopping_note.app.receipt.application.service.ReceiptService
 import com.chaw.shopping_note.app.receipt.domain.ReceiptItem
 import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptItemRepository
-import com.chaw.shopping_note.app.receipt.infrastructure.repository.ReceiptRepository
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 
 @Service
 class CreateReceiptItemUseCase(
-    private val receiptRepository: ReceiptRepository,
-    private val receiptItemRepository: ReceiptItemRepository
+    private val receiptItemRepository: ReceiptItemRepository,
+    private val receiptService: ReceiptService
 ) {
 
     suspend fun execute(input: CreateReceiptItemRequestDto): ReceiptItem {
-        val receipt = receiptRepository.findById(input.receiptId).awaitSingleOrNull()
-            ?: throw IllegalArgumentException("Receipt not found")
+        val receipt = receiptService.findReceiptWithPermission(input.receiptId, input.userId)
+        val receiptItem = createAndSaveReceiptItem(input)
+        receiptService.updateReceiptTotal(receipt)
+        return receiptItem
+    }
 
-        if (receipt.userId != input.userId) {
-            throw AccessDeniedException("No Permission")
-        }
-
+    private suspend fun createAndSaveReceiptItem(input: CreateReceiptItemRequestDto): ReceiptItem {
         val receiptItem = ReceiptItem.create(
             receiptId = input.receiptId,
             productName = input.productName,
@@ -33,15 +31,6 @@ class CreateReceiptItemUseCase(
         )
 
         receiptItemRepository.save(receiptItem).awaitSingle()
-
-        val receiptItems = receiptItemRepository.findAllByReceiptId(receiptItem.receiptId)
-            .collectList()
-            .awaitSingle()
-
-        receipt.setTotal(receiptItems)
-        receiptRepository.save(receipt).awaitSingle()
-
         return receiptItem
     }
-
 }
