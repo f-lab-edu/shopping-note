@@ -32,7 +32,7 @@ class GetReceiptUseCaseTest {
     )
 
     @Test
-    fun `영수증과 영수증 항목을 조회할 수 있다`() = runTest {
+    fun success() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L

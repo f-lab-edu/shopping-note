@@ -32,7 +32,7 @@ class DeleteReceiptItemUseCaseTest {
     }
 
     @Test
-    fun `영수증 항목을 삭제할 수 있다`() = runTest {
+    fun success() = runTest {
         // given
         val receiptId = 1L
         val receiptItemId = 100L

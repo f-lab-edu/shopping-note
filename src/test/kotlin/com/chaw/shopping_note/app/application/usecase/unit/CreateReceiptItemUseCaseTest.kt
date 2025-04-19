@@ -24,7 +24,7 @@ class CreateReceiptItemUseCaseTest {
     )
 
     @Test
-    fun `영수증 항목을 생성할 수 있다`() = runTest {
+    fun success() = runTest {
         // given
         val receiptId = 1L
         val userId = 123L
