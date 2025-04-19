@@ -1,6 +1,7 @@
 package com.chaw.shopping_note.app.application.usecase.unit
 
 import com.chaw.shopping_note.app.receipt.application.dto.GetReceiptRequestDto
+import com.chaw.shopping_note.app.receipt.application.mapper.ReceiptMapperImpl
 import com.chaw.shopping_note.app.receipt.application.usecase.GetReceiptUseCase
 import com.chaw.shopping_note.app.receipt.domain.Category
 import com.chaw.shopping_note.app.receipt.domain.StoreType
@@ -26,11 +27,13 @@ class GetReceiptUseCaseTest {
     private val storeRepository = mockk<StoreRepository>()
     private val receiptRepository = mockk<ReceiptRepository>()
     private val receiptItemRepository = mockk<ReceiptItemRepository>()
+    private val receiptMapper = ReceiptMapperImpl()
 
     private val getReceiptUseCase = GetReceiptUseCase(
         storeRepository,
         receiptRepository,
-        receiptItemRepository
+        receiptItemRepository,
+        receiptMapper
     )
 
     @Test
