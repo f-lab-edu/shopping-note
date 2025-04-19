@@ -32,12 +32,4 @@ class ReceiptService (
     suspend fun findAllReceiptItemByReceiptId(receiptId: Long): List<ReceiptItem> {
         return receiptItemRepository.findAllByReceiptId(receiptId).collectList().awaitSingle()
     }
-
-    suspend fun updateReceiptTotal(receipt: Receipt) {
-        val receiptItems = receiptItemRepository.findAllByReceiptId(receipt.id!!)
-            .collectList()
-            .awaitSingle()
-        receipt.setTotal(receiptItems)
-        receiptRepository.save(receipt).awaitSingle()
-    }
 }

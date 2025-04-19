@@ -15,9 +15,7 @@ class DeleteReceiptItemUseCase(
 
     suspend fun execute(input: DeleteReceiptItemRequestDto): Boolean {
         val receiptItem = receiptService.findReceiptItem(input.receiptItemId)
-        val receipt = receiptService.findReceiptWithPermission(receiptItem.receiptId, input.userId)
         deleteReceiptItem(receiptItem)
-        receiptService.updateReceiptTotal(receipt)
         return true
     }
 

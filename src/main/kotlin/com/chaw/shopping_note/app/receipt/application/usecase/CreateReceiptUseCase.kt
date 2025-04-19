@@ -15,8 +15,6 @@ class CreateReceiptUseCase (
             userId = input.userId,
             storeId = input.storeId,
             purchaseAt = input.purchaseAt,
-            totalPrice = 0,
-            totalCount = 0
         )
         return receiptRepository.save(receipt).awaitSingle()
     }
